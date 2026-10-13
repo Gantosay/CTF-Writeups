@@ -266,7 +266,6 @@ gdb ./start
 
 ## Key takeaways
 
-- **32-bit cdecl changes everything about argument passing.** Arguments travel on the stack, not in registers — hijacking a function that expects arguments means planting those values at the right stack offsets *after* a fake return address for that function, not just jumping to its entry point.
 - **No frame pointer means no `+4`/`+8` padding bonus.** Always check for `push ebp; mov ebp, esp` before reusing a padding formula from a previous binary; without it, offsets come directly from `sub esp, N` and the buffer's `esp`-relative address.
 - **A crash can destroy output that was technically already "printed."** Any time a hijacked function's own return value matters, consider chaining into `exit()` (or another buffer-flushing function) rather than an arbitrary address — unflushed stdio buffers vanish on SIGSEGV.
 - **"No PIE" only pins the binary's own code and data — not the stack.** The stack remains subject to ASLR independently, and GDB's default ASLR-disabling for its own child processes can make a stack address look deceptively stable when debugging, right up until it fails identically on every non-GDB run, local or remote.
