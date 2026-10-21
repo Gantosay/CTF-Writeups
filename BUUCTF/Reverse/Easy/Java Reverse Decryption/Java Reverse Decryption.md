@@ -128,19 +128,4 @@ print(f"🥇 Flag: {final_flag}\n")
 
 ---
 
-## 🎯 Verification & Exploitation Flow
 
-1. Run the Python solver script locally to dynamically resolve the unmasked string characters:
-   ```text
-   🥇 Flag: flag{This_is_the_key_!}
-   ```
-2. Feed the unmasked inner core value sequence into the prompt of the interactive verification algorithm to trigger the true-positive statement:
-   ```text
-   Please input the flag ：
-   This_is_the_key_!
-   Your input is ：
-   This_is_the_key_!
-   Result:
-   Congratulations！
-   ```
-3. Submit the resulting complete wrapped token to finalize the target challenge block.
