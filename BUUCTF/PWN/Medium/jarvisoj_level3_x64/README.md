@@ -64,7 +64,7 @@ flowchart TD
     L --> M{Works locally, crashes remotely?}
     M -->|yes| N["Fingerprint remote libc\nvia low 12 bits of leak"]
     N --> O["Swap pwntools libc ELF to matching build"]
-    O --> P{remote() hangs with EOFError?}
+    O --> P{"remote() hangs with EOFError?"}
     M -->|no| P
     P -->|yes| Q["ncat --ssl probe -> TLS-wrapped TCP"]
     Q --> R["remote(..., ssl=True, sni=HOST)"]
