@@ -309,9 +309,9 @@ Because the binary is **No PIE**, this address is identical in our local test an
 
 ```mermaid
 flowchart TD
-    P["40 bytes filler\n(&quot;A&quot; * 40)\nfills buf + saved rbp"] --> T["p64(0x400708)\noverwrites the saved return address"]
-    T --> E["main returns into backdooOo0r\n(own prologue runs cleanly)"]
-    E --> X["execve(&quot;/bin/sh&quot;, NULL, NULL)"]
+    P["40 bytes filler<br>('A' * 40)<br>fills buf + saved rbp"] --> T["p64(0x400708)<br>overwrites the saved return address"]
+    T --> E["main returns into backdooOo0r<br>(own prologue runs cleanly)"]
+    E --> X["execve('/bin/sh', NULL, NULL)"]
     X --> SH(["interactive shell"])
 
     style P fill:#30363d,color:#fff
