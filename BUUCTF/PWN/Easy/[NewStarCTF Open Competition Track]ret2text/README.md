@@ -61,7 +61,7 @@ flowchart TD
     E --> F
     F --> G["Found backdooOo0r at 0x400708\n(never called from main)"]
     G --> H["Confirm /bin/sh string in .rodata @ 0x4007f4"]
-    H --> I["Disassemble backdooOo0r:\nrdi=&quot;/bin/sh&quot;, rsi=0, rdx=0, call execve@plt"]
+    H --> I["Disassemble backdooOo0r:<br>rdi='#quot;/bin/sh#quot;', rsi=0, rdx=0, call execve@plt"]
     I --> J["Disassemble main: lea rax,[rbp-0x20] -> buf starts at rbp-0x20"]
     J --> K["Compute padding: 0x20 + 8 = 40 bytes"]
     K --> L["Build payload: 40 bytes filler + p64(0x400708)"]
