@@ -190,11 +190,11 @@ All code is 64-bit, Intel syntax, System V AMD64 calling convention (args in `rd
 flowchart LR
     subgraph Setup["backdooOo0r() register setup, System V AMD64"]
         direction TB
-        R1["mov edx, 0\n(zero-extends to rdx = 0)"] --> R2["mov esi, 0\n(zero-extends to rsi = 0)"]
-        R2 --> R3["lea rdi, [rip+0xd7]\n-> &quot;/bin/sh&quot; @ 0x4007f4"]
+        R1["mov edx, 0<br>(zero-extends to rdx = 0)"] --> R2["mov esi, 0<br>(zero-extends to rsi = 0)"]
+        R2 --> R3["lea rdi, [rip+0xd7]<br>-> '/bin/sh' @ 0x4007f4"]
     end
-    R3 --> CALL["call execve@plt\nexecve(&quot;/bin/sh&quot;, NULL, NULL)"]
-    CALL --> RES(["process image replaced\n-> interactive /bin/sh shell\n(never returns on success)"])
+    R3 --> CALL["call execve@plt<br>execve('/bin/sh', NULL, NULL)"]
+    CALL --> RES(["process image replaced<br>-> interactive /bin/sh shell<br>(never returns on success)"])
 
     style R3 fill:#1f6feb,color:#fff
     style CALL fill:#9e6a03,color:#fff
