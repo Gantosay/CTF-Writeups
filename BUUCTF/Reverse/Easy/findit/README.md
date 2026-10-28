@@ -17,14 +17,13 @@
 
 ## 📌 TL;DR
 
-The target is `com.example.findit`, an Android app with a single button that validates a serial key and then reveals a flag. Decompiling with **JADX-GUI** shows two hardcoded `char[]` arrays: one obfuscated serial key (`a`) and one obfuscated flag (`b`). Critically, the flag's decryption routine (Section 3 of `onClick`) reads **only from `b`** — it never touches the user's input. This is a classic **"independent lock"** implementation mistake: the gate (comparing input to the derived key) and the payload (decrypting the flag) are two completely separate code paths that just happen to run back-to-back. We never need to find the correct key at all — we just replicate Section 3's decryption logic in Python and run it directly on `b`.
+The target is `findit.apk`, an Android app with a single button that validates a serial key and then reveals a flag. Decompiling with **JADX-GUI** shows two hardcoded `char[]` arrays: one obfuscated serial key (`a`) and one obfuscated flag (`b`). Critically, the flag's decryption routine (Section 3 of `onClick`) reads **only from `b`** — it never touches the user's input. This is a classic **"independent lock"** implementation mistake: the gate (comparing input to the derived key) and the payload (decrypting the flag) are two completely separate code paths that just happen to run back-to-back. We never need to find the correct key at all — we just replicate Section 3's decryption logic in Python and run it directly on `b`.
 
 | | |
 |---|---|
 | **Target** | `com.example.findit` (Android APK) |
 | **Flaw class** | Independent Lock / Gatekeeper pattern — decryption doesn't depend on user input |
 | **Cipher** | Split-range Caesar shift (`+16`, case-aware) with a **boundary-wrapping bug** |
-| **Flag** | `flag{c164675262033b4c49bdf7f9cda28a75}` |
 | **Serial key** (if you want to use the UI) | `LzakAkLzwXdsyZgew` |
 | **Verified** | ✅ Python replication matches live on-device behavior (Apple Silicon emulator via ADB) |
 
@@ -270,7 +269,7 @@ if __name__ == "__main__":
 
 ```text
 [+] Exploit complete — no key search needed
-[-] Extracted flag       : flag{c164675262033b4c49bdf7f9cda28a75}
+[-] Extracted flag       : flag{xxxxxxxxxxxxxxxxxxx}
 [-] Serial key (for UI)  : LzakAkLzwXdsyZgew
 ```
 
@@ -397,7 +396,7 @@ public class MainActivity extends ActionBarActivity {
 | Array `a` (seed for serial key) | `ThisIsTheFlagHome` |
 | Derived serial key | `LzakAkLzwXdsyZgew` |
 | Array `b` length | 38 characters |
-| Flag | `flag{c164675262033b4c49bdf7f9cda28a75}` |
+| Flag | `flag{xxxxxxxxxxxxxxxxxxxx}` |
 | Cipher | Caesar `+16` on letters only, inclusive `>= 'z'` wrap |
 
 ---
