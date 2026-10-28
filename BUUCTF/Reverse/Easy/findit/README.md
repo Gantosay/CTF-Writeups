@@ -21,11 +21,11 @@ The target is `findit.apk`, an Android app with a single button that validates a
 
 | | |
 |---|---|
-| **Target** | `com.example.findit` (Android APK) |
+| **Target** | `findit.apk` (Android APK) |
 | **Flaw class** | Independent Lock / Gatekeeper pattern — decryption doesn't depend on user input |
 | **Cipher** | Split-range Caesar shift (`+16`, case-aware) with a **boundary-wrapping bug** |
 | **Serial key** (if you want to use the UI) | `LzakAkLzwXdsyZgew` |
-| **Verified** | ✅ Python replication matches live on-device behavior (Apple Silicon emulator via ADB) |
+| **Verified** | ✅ Python replication matches live on-device behavior (emulator via ADB) |
 
 ---
 
@@ -277,7 +277,7 @@ if __name__ == "__main__":
 
 ---
 
-## 5. 📱 Dynamic Verification on Android (macOS, Apple Silicon)
+## 5. 📱 Dynamic Verification on Android
 
 Static analysis alone is enough to get the flag, but it's good practice to confirm the reasoning against the real app when possible — it catches any decompiler quirk or misread condition before you trust the output.
 
