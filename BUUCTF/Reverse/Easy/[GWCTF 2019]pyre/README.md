@@ -62,7 +62,7 @@ flowchart TD
     H --> I["Stage 2 fully undone -> array now holds Stage-1 output"]
     I --> J["Walk the array LEFT TO RIGHT\nc[i] = (c[i] - i) mod 128"]
     J --> K["Stage 1 fully undone -> raw ASCII bytes recovered"]
-    K --> L([Flag recovered: GWHT{xxxxxxxxxxx}])
+    K --> L["Flag recovered: GWHT{xxxxxxxxxxx}"]
     L --> M["Forward re-encrypt the flag\nwith the challenge's own Stage 1 + Stage 2"]
     M --> N{"Does it reproduce the exact\noriginal ciphertext array?"}
     N -- yes --> O([Verified -- no guessing involved])
