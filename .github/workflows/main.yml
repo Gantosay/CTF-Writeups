@@ -1,0 +1,13 @@
+name: Clear Deployments
+on:
+  workflow_dispatch:
+
+jobs:
+  clear-deployments:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete all deployments
+        uses: qa55/delete-deployment-action@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          all: true
