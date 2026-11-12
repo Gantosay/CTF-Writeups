@@ -220,22 +220,22 @@ Two effects from one gadget: it **loads a register** *and* **advances to the nex
 
 ```mermaid
 sequenceDiagram
-    participant Stack as Stack (attacker-controlled)
-    participant CPU as CPU (EIP)
-
+    participant Stack as "Stack (attacker-controlled)"
+    participant CPU as "CPU (EIP)"
     Note over Stack,CPU: Each gadget "consumes" itself, then jumps to the next value
     CPU->>Stack: ret reads next dword
-    Stack-->>CPU: addr(pop eax; ret)
-    CPU->>Stack: pop eax <- reads next dword
+    Stack-->>CPU: addr(pop eax / ret)
+    CPU->>Stack: pop eax (reads next dword)
     Stack-->>CPU: value for EAX
     CPU->>Stack: ret reads next dword
-    Stack-->>CPU: addr(pop ebx; ret)
-    CPU->>Stack: pop ebx <- reads next dword
+    Stack-->>CPU: addr(pop ebx / ret)
+    CPU->>Stack: pop ebx (reads next dword)
     Stack-->>CPU: value for EBX
     Note over CPU: ... repeats for ECX, EDX ...
     CPU->>Stack: ret reads next dword
     Stack-->>CPU: addr(int 0x80)
     CPU->>CPU: syscall executes with EAX/EBX/ECX/EDX
+
 ```
 
 ---
