@@ -381,13 +381,14 @@ flowchart TD
     D --> E["Server: read(0, response, 0x1000)\nshellcode lands in the RWX page"]
     E --> F["Server: check(response)\nscans every byte -- finds nothing -- returns"]
     F --> G["Server: foo() -- jump into our shellcode"]
-    G --> H["Shellcode: write \"/bin/sh\\0\" to +0x200"]
+    G --> H["Shellcode: write #quot;/bin/sh#92;0#quot; to +0x200"]
     H --> I["Shellcode: rax=59, rdi=&binsh, rsi=0, rdx=0"]
     I --> J["Shellcode: write byte 0x0f to +0x300\nwrite byte 0x05 to +0x300+1\n(NEVER scanned -- check() already returned)"]
     J --> K["Shellcode: jmp to +0x300"]
     K --> L["CPU executes the two freshly-written bytes\nas a genuine syscall instruction"]
-    L --> M["execve(\"/bin/sh\", NULL, NULL)"]
+    L --> M["execve(#quot;/bin/sh#quot;, NULL, NULL)"]
     M --> N["Shell 🐚"]
+
 ```
 
 ---
