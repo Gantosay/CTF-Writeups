@@ -323,16 +323,17 @@ sequenceDiagram
     participant CPU as CPU
     participant Sys as system@plt
 
-    Note over Stk: vulnerable()'s `leave; ret` executes
+    Note over Stk: vulnerable()'s `leave#59; ret` executes
     Stk->>CPU: ret pops 0x08048529 into EIP, ESP += 4
-    Note over CPU: EIP now points at `call system@plt`\n(the instruction AT 0x08048529, mid-shell())
+    Note over CPU: EIP now points at `call system@plt`<br/>(the instruction AT 0x08048529, mid-shell())
     Note over Stk: ESP now points at 0x08048670 ("sh" pointer)
     CPU->>Stk: call instruction pushes return addr 0x0804852e
     Stk-->>CPU: ESP now points at 0x0804852e, [ESP+4] = 0x08048670
     CPU->>Sys: jump into system@plt
-    Note over Sys: system() entry: [ESP]=ret addr, [ESP+4]="sh" ptr --\nEXACTLY the cdecl layout it expects
+    Note over Sys: system() entry: [ESP]=ret addr, [ESP+4]="sh" ptr -<br/>EXACTLY the cdecl layout it expects
     Sys->>Sys: system("sh")
     Sys-->>Stk: shell spawned 🐚
+
 ```
 
 Walking it step by step:
