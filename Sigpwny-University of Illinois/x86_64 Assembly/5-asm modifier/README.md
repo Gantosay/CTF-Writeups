@@ -592,7 +592,7 @@ xxd shell.bin
 python3 -c "print(open('shell.bin','rb').read().find(b'\x0f\x05'))"   # expect -1
 
 # Run the real exploit
-python3 solve.py
+python3 exploit.py
 ```
 
 ---
