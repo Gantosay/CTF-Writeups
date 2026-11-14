@@ -848,8 +848,3 @@ python3 -c 'import sys; sys.stdout.buffer.write(b"A"*40+b"B\n")' | nc chal.sigpw
 
 ---
 
-*Write-up expanded with a precise explanation of why `gets()` is dangerous at the signature level (no
-size parameter at all, not merely "unsafe by convention"), the control-flow-vs-data-oriented distinction
-diagrammed explicitly, the stack-canary caveat traced to exactly where in function execution a canary
-check actually happens, and a quiz section covering both the mechanical details and the general triage
-principle the challenge illustrates.*
