@@ -214,15 +214,16 @@ few bytes, there's no risk of the string write and the syscall-byte write collid
 
 ```mermaid
 block-beta
-columns 1
+  columns 1
   block:page
     shellcode["0x123412340000 — our sent shellcode (~59 bytes)"]
     gap1["... unused ..."]
-    binsh["0x123412340200 — \"/bin/sh\\0\" written here at runtime"]
+    binsh["0x123412340200 — #quot;/bin/sh#92;0#quot; written here at runtime"]
     gap2["... unused ..."]
     sc["0x123412340300 — 0x0f, 0x05 written here at runtime"]
     rest["... rest of the 0x1000-byte page, unused ..."]
   end
+
 ```
 
 ---
