@@ -323,16 +323,17 @@ sequenceDiagram
     participant CPU as CPU
     participant Sys as system@plt
 
-    Note over Stk: vulnerable()'s `leave; ret` executes
+    Note over Stk: vulnerable()'s `leave#59; ret` executes
     Stk->>CPU: ret pops 0x08048529 into EIP, ESP += 4
-    Note over CPU: EIP now points at `call system@plt`\n(the instruction AT 0x08048529, mid-shell())
+    Note over CPU: EIP now points at `call system@plt`<br/>(the instruction AT 0x08048529, mid-shell())
     Note over Stk: ESP now points at 0x08048670 ("sh" pointer)
     CPU->>Stk: call instruction pushes return addr 0x0804852e
     Stk-->>CPU: ESP now points at 0x0804852e, [ESP+4] = 0x08048670
     CPU->>Sys: jump into system@plt
-    Note over Sys: system() entry: [ESP]=ret addr, [ESP+4]="sh" ptr --\nEXACTLY the cdecl layout it expects
+    Note over Sys: system() entry: [ESP]=ret addr, [ESP+4]="sh" ptr -<br/>EXACTLY the cdecl layout it expects
     Sys->>Sys: system("sh")
     Sys-->>Stk: shell spawned 🐚
+
 ```
 
 Walking it step by step:
@@ -616,15 +617,16 @@ offset       = (EBP + 4) - (EBP - 0x18) = 0x1c = 28 bytes
 
 ```mermaid
 flowchart TD
-    A["Send 36-byte payload to read()"] --> B["28 bytes 'A' padding\n(fills buf[24] + saved EBP)"]
-    B --> C["4 bytes: 0x08048529\n(overwrites saved EIP)"]
-    C --> D["4 bytes: 0x08048670\n(extra dword right after EIP)"]
-    D --> E["vulnerable() epilogue: leave; ret"]
-    E --> F["ret pops 0x08048529 into EIP\nESP now points at the 0x08048670 dword"]
-    F --> G["CPU executes `call system@plt`\n@ 0x08048529 -- pushes its OWN\nreturn addr (0x0804852e)"]
-    G --> H["system() entry: [ESP]=ret addr,\n[ESP+4]=0x08048670 (\"sh\" ptr)\n-- correct cdecl argument layout"]
-    H --> I["system(\"sh\") executes"]
+    A["Send 36-byte payload to read()"] --> B["28 bytes 'A' padding<br/>(fills buf[24] + saved EBP)"]
+    B --> C["4 bytes: 0x08048529<br/>(overwrites saved EIP)"]
+    C --> D["4 bytes: 0x08048670<br/>(extra dword right after EIP)"]
+    D --> E["vulnerable() epilogue: leave#59; ret"]
+    E --> F["ret pops 0x08048529 into EIP<br/>ESP now points at the 0x08048670 dword"]
+    F --> G["CPU executes `call system@plt`<br/>@ 0x08048529 -- pushes its OWN<br/>return addr (0x0804852e)"]
+    G --> H["system() entry: [ESP]=ret addr,<br/>[ESP+4]=0x08048670 (#quot;sh#quot; ptr)<br/>-- correct cdecl argument layout"]
+    H --> I["system(#quot;sh#quot;) executes"]
     I --> J["Shell 🐚"]
+
 ```
 
 | Step | Action | Value |
