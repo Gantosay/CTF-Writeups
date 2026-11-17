@@ -212,14 +212,15 @@ never trips the canary check at all. This is explored concretely in §5.3.
 
 ```mermaid
 flowchart LR
-    subgraph frame["main's stack frame, by rbp-relative offset"]
-        direction TB
-        ra["[rbp+0x8]  Return address"]
-        sb["[rbp+0x0]  Saved RBP"]
-        can["[rbp-0x10]  Stack canary"]
-        pad["[rbp-0x18]  1 byte of padding\n-- the off-by-one lands HERE, not on the canary"]
-        buf["[rbp-0x38]  32-byte input buffer\n-- scanf(\"%s\", ...) writes here"]
-    end
+  subgraph frame["main's stack frame, by rbp-relative offset"]
+    direction TB
+    ra["[rbp+0x8] Return address"]
+    sb["[rbp+0x0] Saved RBP"]
+    can["[rbp-0x10] Stack canary"]
+    pad["[rbp-0x18] 1 byte of padding<br/>-- the off-by-one lands HERE, not on the canary"]
+    buf["[rbp-0x38] 32-byte input buffer<br/>-- scanf(#quot;%s#quot;, ...) writes here"]
+  end
+
 ```
 
 ---
