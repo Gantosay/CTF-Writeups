@@ -322,6 +322,7 @@ flowchart TD
     E --> F["reads credit[attacker] = 274, zeroes it"]
     F --> G["TOKEN_XFER: vault -274, attacker +274"]
     G --> H["Net this cycle: attacker +137, vault -137"]
+
 ```
 
 ---
