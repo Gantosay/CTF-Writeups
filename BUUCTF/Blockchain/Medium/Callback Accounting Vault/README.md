@@ -1025,13 +1025,3 @@ main_done:
 ```
 
 ---
-
-*Write-up fully rebuilt from the raw asm listing and `program_data.json`: every instruction in
-`deposit`, `onRWDReceived`, `withdrawAll`, and `main` individually walked through and explained, the
-distinction between this bug and classic recursive reentrancy made explicit with a comparison table, a
-new sustainability analysis added and independently verified (quantifying the exact maximum of 29
-cycles before the Vault would run out of funds, and confirming the bug's profit is strictly additive
-rather than compounding via a direct batched-vs-interleaved test), a concrete corrected implementation
-added and verified to fully neutralize the exploit rather than merely asserted, and a quiz section
-covering the exact mechanics, the fix's sufficiency, and a general audit heuristic for this entire bug
-class.*
