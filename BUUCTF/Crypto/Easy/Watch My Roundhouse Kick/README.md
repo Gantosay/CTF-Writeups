@@ -35,7 +35,7 @@ To distinguish the true plaintext from 24 gibberish outputs, each candidate stri
 
 ---
 
-## Solution Script (`solver.py`)
+## Solution Script (`solve.py`)
 
 ```python
 import base64
@@ -134,7 +134,7 @@ python3 solve.py
 
 **Sample Execution:**
 ```text
-Enter ciphertext: PGS{rknzcyr_synt_123}
+Enter ciphertext: synt{5pq1004q-86n5-46q8-o720-oro5on0417r1}
 ----------------------------------------
 [+] Detected Scheme : Caesar / ROT-13
 [+] Decoded Output  : CTF{example_flag_123}
