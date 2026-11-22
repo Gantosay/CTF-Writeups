@@ -55,22 +55,23 @@ n (256-bit, 77 digits)  →  factor into p × q  →  compute private exponent d
 
 ```mermaid
 flowchart TD
-    A([pub.key + flag.enc given]) --> B["extract n and e from the PEM public key"]
+    A(["pub.key + flag.enc given"]) --> B["extract n and e from the PEM public key"]
     B --> C{"how large is n?"}
-    C -- "256 bits -- 77 decimal digits" --> D["far below the ~2048-bit floor\nconsidered secure today"]
+    C -- "256 bits -- 77 decimal digits" --> D["far below the ~2048-bit floor<br>considered secure today"]
     D --> E["factor n directly: n = p times q"]
-    E --> F["a 256-bit semiprime factors in\nunder a second with a real factoring tool"]
+    E --> F["a 256-bit semiprime factors in<br>under a second with a real factoring tool"]
     F --> G["compute phi(n) = (p-1) times (q-1)"]
-    G --> H["compute the private exponent:\nd = modular inverse of e, mod phi(n)"]
+    G --> H["compute the private exponent:<br>d = modular inverse of e, mod phi(n)"]
     H --> I["decrypt: m = c pow d, mod n"]
     I --> J["convert the resulting integer back to bytes"]
-    J --> K["strip PKCS#1 v1.5 padding:\n00 02 PS 00 MESSAGE"]
-    K --> L([flag recovered and independently re-verified])
+    J --> K["strip PKCS#1 v1.5 padding:<br>00 02 PS 00 MESSAGE"]
+    K --> L(["flag recovered and independently re-verified"])
 
     style D fill:#9e6a03,color:#fff
     style F fill:#da3633,color:#fff
     style H fill:#1f6feb,color:#fff
     style L fill:#2ea043,color:#fff
+
 ```
 
 ---
