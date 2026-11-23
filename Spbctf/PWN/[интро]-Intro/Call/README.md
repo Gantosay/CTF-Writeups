@@ -581,7 +581,7 @@ if __name__ == "__main__":
 | Works with no `gdb` installed | ❌ | ❌ | ✅ |
 | Lines of code | 0 (interactive commands) | ~15 | ~90 |
 | Relies on a high-level "call this function" primitive | ✅ (GDB provides it) | ✅ (GDB provides it) | ❌ (built from raw register/memory control) |
-| Independently verified against the real binary in this write-up | ✅ (live session) | ✅ (documented working script) |
+| Independently verified against the real binary in this write-up | ✅ (live session) | ✅ (documented working script) | ⚠️ reasoned through carefully, not executed here |
 | Best suited for | Quick manual verification of a hypothesis | Repeatable, scripted solving | Environments where `gdb` is unavailable or restricted |
 
 **Practical recommendation:** reach for Solution 1 first, always — it's the fastest way to confirm a hypothesis like "this function prints the flag" before investing any time in automation. Use Solution 2 once that hypothesis is confirmed and the goal shifts to a clean, repeatable, one-command solve. Keep Solution 3's underlying technique in your back pocket specifically for environments where installing or invoking `gdb` isn't an option — it's a more fundamental, dependency-free way of achieving the exact same result.
