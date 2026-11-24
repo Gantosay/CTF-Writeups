@@ -56,16 +56,16 @@ yes_print_the_flag() -> obfuscated_print_flag() -> flag    (the path that exists
 
 ```mermaid
 flowchart TD
-    A([checksec: No PIE, Partial RELRO, no canary, not stripped]) --> B["binary is NOT stripped --\nread the symbol table directly"]
-    B --> C["nm / objdump finds yes_print_the_flag,\nwhich calls obfuscated_print_flag"]
+    A([checksec: No PIE, Partial RELRO, no canary, not stripped]) --> B["binary is NOT stripped —<br>read the symbol table directly"]
+    B --> C["nm / objdump finds yes_print_the_flag,<br>which calls obfuscated_print_flag"]
     C --> D[Disassemble main]
-    D --> E["main only prints two taunting strings\nand exits -- no input function anywhere"]
-    E --> F["no scanf, no gets, no read --\nno memory-corruption path exists at all"]
-    F --> G["this rules out ret2win in the\ntraditional sense: nothing lets us\ncontrol the return address"]
-    G --> H["the real task: force execution into\nyes_print_the_flag from OUTSIDE main's own logic"]
+    D --> E["main only prints two taunting strings<br>and exits — no input function anywhere"]
+    E --> F["no scanf, no gets, no read —<br>no memory-corruption path exists at all"]
+    F --> G["this rules out ret2win in the<br>traditional sense: nothing lets us<br>control the return address"]
+    G --> H["the real task: force execution into<br>yes_print_the_flag from OUTSIDE main's own logic"]
     H --> I["Solution 1: gdb, call yes_print_the_flag directly"]
     H --> J["Solution 2: same thing, scripted with pwntools + gdb batch mode"]
-    H --> K["Solution 3: no gdb binary needed at all --\nbreakpoint main via raw ptrace, then redirect RIP"]
+    H --> K["Solution 3: no gdb binary needed at all —<br>breakpoint main via raw ptrace, then redirect RIP"]
     I --> L([flag printed])
     J --> L
     K --> L
@@ -74,6 +74,7 @@ flowchart TD
     style G fill:#da3633,color:#fff
     style H fill:#1f6feb,color:#fff
     style L fill:#2ea043,color:#fff
+
 ```
 
 ---
@@ -580,7 +581,7 @@ if __name__ == "__main__":
 | Works with no `gdb` installed | ❌ | ❌ | ✅ |
 | Lines of code | 0 (interactive commands) | ~15 | ~90 |
 | Relies on a high-level "call this function" primitive | ✅ (GDB provides it) | ✅ (GDB provides it) | ❌ (built from raw register/memory control) |
-| Independently verified against the real binary in this write-up | ✅ (live session) | ✅ (documented working script) |
+| Independently verified against the real binary in this write-up | ✅ (live session) | ✅ (documented working script) | ⚠️ reasoned through carefully, not executed here |
 | Best suited for | Quick manual verification of a hypothesis | Repeatable, scripted solving | Environments where `gdb` is unavailable or restricted |
 
 **Practical recommendation:** reach for Solution 1 first, always — it's the fastest way to confirm a hypothesis like "this function prints the flag" before investing any time in automation. Use Solution 2 once that hypothesis is confirmed and the goal shifts to a clean, repeatable, one-command solve. Keep Solution 3's underlying technique in your back pocket specifically for environments where installing or invoking `gdb` isn't an option — it's a more fundamental, dependency-free way of achieving the exact same result.
