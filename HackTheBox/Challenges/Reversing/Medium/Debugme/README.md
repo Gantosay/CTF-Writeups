@@ -13,8 +13,8 @@ Windows program that
 Most write-ups online just say "patch the checks and look at the stack". This one explains **every
 instruction** so you can see *why* it works.
 
-**Flag:** `HTB{Tr0lling_Ant1_D3buGGeR_trickz_R_fun!}`
-(body: `Tr0lling_Ant1_D3buGGeR_trickz_R_fun!`)
+**Flag:** `HTB{Tr0lling_xxxxxxxxxxxxxxx_R_fun!}`
+(body: `Tr0llxxxxxxxxxxxxxxxxxxxx_fun!`)
 
 ---
 
