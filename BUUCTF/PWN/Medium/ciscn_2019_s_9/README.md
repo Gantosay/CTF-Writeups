@@ -546,7 +546,7 @@ context.log_level = 'info'
 MODE   = 'local'          # 'local' or 'remote'
 BINARY = './cis'
 
-HOST = 'challenge.example.com'   # fill in for remote
+HOST = 'f0a9419804451a406184a04a.tcp-ctf2.dasctf.com'   # fill in for remote
 PORT = 9999
 
 JMP_ESP = 0x08048554             # hint() + 3 : "jmp esp"   (ff e4)
