@@ -510,8 +510,8 @@ $ python3 solve.py debugme.exe
     push 7: 0x3f250a14
     push 8: 0x2c252227
     push 9: 0x277b391f
-[+] flag body : Tr0lling_Ant1_D3buGGeR_trickz_R_fun!
-[+] flag      : HTB{Tr0lling_Ant1_D3buGGeR_trickz_R_fun!}
+[+] flag body : Tr0llingxxxxxxxxxxxxxxxxx_fun!
+[+] flag      : HTB{Tr0xxxxxxxxxxxxxxxxxx_fun!}
 ```
 
 The core of the solver is just this (the full script derives every constant from the binary):
