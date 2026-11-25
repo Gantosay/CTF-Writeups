@@ -619,4 +619,4 @@ for i, d in enumerate(dwords[1:], 2):
 
 ---
 
-* **Shoutout to mprox, who drew first blood on this challenge 8 years ago. Truly an absolute legend and a top-tier professional.
+* Shoutout to mprox, who drew first blood on this challenge 8 years ago. Truly an absolute legend and a top-tier professional.
